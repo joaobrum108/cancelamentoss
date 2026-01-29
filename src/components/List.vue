@@ -29,27 +29,29 @@
         </v-col>
 
         <v-col cols="6" md="2" lg="2" class="pr-1 pl-0 pr-md-2">
-          <v-text-field
-            v-model="dateFrom"
-            variant="outlined"
-            label="De"
-            type="date"
-            density="compact"
-            hide-details="auto"
-            :max="dateTo"
-          ></v-text-field>
+          <div class="date-input-container">
+            <v-icon icon="mdi-calendar-range" size="small" class="date-icon"></v-icon>
+            <input
+              v-model="dateFrom"
+              type="date"
+              class="date-input"
+              placeholder="Data inicial"
+              :max="dateTo"
+            />
+          </div>
         </v-col>
 
         <v-col cols="6" md="2" lg="2" class="pl-1 pl-md-2">
-          <v-text-field
-            v-model="dateTo"
-            variant="outlined"
-            label="Até"
-            type="date"
-            density="compact"
-            hide-details="auto"
-            :min="dateFrom"
-          ></v-text-field>
+          <div class="date-input-container">
+            <v-icon icon="mdi-calendar-range" size="small" class="date-icon"></v-icon>
+            <input
+              v-model="dateTo"
+              type="date"
+              class="date-input"
+              placeholder="Data final"
+              :min="dateFrom"
+            />
+          </div>
         </v-col>
     
         
@@ -138,7 +140,7 @@ import { relatorioCancelamentos } from '../services/api-cancelamentos';
 
 const listaRelatorio = ref([]);
 const currentPage = ref(1);
-const itemsPerPage = 30;
+const itemsPerPage = 50;
 const searchQuery = ref('');
 const dateFrom = ref('');
 const dateTo = ref('');
@@ -163,20 +165,29 @@ const filteredData = computed(() => {
   }
 
   if (dateFrom.value) {
-    filtered = filtered.filter(item => 
-      new Date(item.data_cancelamento) >= new Date(dateFrom.value)
-    );
+    filtered = filtered.filter(item => {
+      if (!item.data_cancelamento) return false;
+  
+      const [day, month, year] = item.data_cancelamento.split('/');
+      const dataFormatada = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      
+      return dataFormatada >= dateFrom.value;
+    });
   }
   
   if (dateTo.value) {
-    filtered = filtered.filter(item => 
-      new Date(item.data_cancelamento) <= new Date(dateTo.value)
-    );
+    filtered = filtered.filter(item => {
+      if (!item.data_cancelamento) return false;
+ 
+      const [day, month, year] = item.data_cancelamento.split('/');
+      const dataFormatada = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      
+      return dataFormatada <= dateTo.value;
+    });
   }
   
   return filtered;
 });
-
 const paginatedData = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
@@ -307,8 +318,52 @@ onBeforeMount(() => {
   color: #db0e35;
 }
 
-.date-field :deep(.v-field) {
-  background-color: white;
+.date-input-container {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 4px 12px;
+  transition: all 0.3s ease;
+  height: 40px;
+}
+
+.date-input-container:focus-within {
+  border-color: #db0e35;
+  box-shadow: 0 0 0 2px rgba(219, 14, 53, 0.1);
+}
+
+.date-icon {
+  color: #757575;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.date-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.875rem;
+  color: #333;
+  background: transparent;
+  height: 100%;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.date-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.date-input:invalid {
+  color: #999;
 }
 
 .results-info {
