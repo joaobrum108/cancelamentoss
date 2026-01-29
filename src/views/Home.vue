@@ -1,11 +1,13 @@
 <template>
-  <v-container class="fill-height d-flex align-center justify-center">
-    <v-row justify="center" align="center">
+  <v-main class="fill-height" style="background-color: #f2f4f8;">
+    <v-container class=" d-flex align-center justify-center">
+    <v-row justify="center" align="center" >
       <v-col cols="12" md="9">
-          <List />
+        <List />
       </v-col>
     </v-row>
   </v-container>
+  </v-main>
 </template>
 
 <script setup>
