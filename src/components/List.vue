@@ -2,7 +2,7 @@
   <v-container fluid class="pa-9">
     <v-card class="contrato-card elevation-2">
       <div>
-        <v-card-title class="text-h6 font-weight-bold pa-4" style="background-color: #db0e35; color: white;">
+        <v-card-title class="text-h6 font-weight-bold pa-4" style="background-color: #b22222; color: white;">
           Relatório de Cancelamentos
         </v-card-title>
       </div>
