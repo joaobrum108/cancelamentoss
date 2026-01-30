@@ -8,7 +8,6 @@
       </div>
 
       <v-row class="search-wrapper" align="center" no-gutters>
-
         <v-col cols="12" md="8" lg="7" class="pb-3 pb-md-0">
           <div class="search-container">
             <v-icon icon="mdi-magnify" size="small" class="search-icon"></v-icon>
@@ -53,12 +52,9 @@
             />
           </div>
         </v-col>
-    
-        
       </v-row>
 
       <v-divider></v-divider>
-   
       <div class="results-info pa-3" style="background-color: #f8f9fa;">
         <span class="text-caption" style="color: #666;">
           {{ filteredData.length }} resultado(s) encontrado(s)

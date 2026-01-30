@@ -1,19 +1,19 @@
 <template>
-  <v-card class="combo-chart-card elevation-2">
+  <v-card class="combo-chart-card ">
     <div class="card-header">
       <div class="header-content">
         <v-icon icon="mdi-chart-bar" size="small" color="white"></v-icon>
         <span class="header-title">Cancelamentos e Taxa Anual</span>
       </div>
       <v-chip size="x-small" color="white" variant="outlined">
-        {{ dadosCancelamentos.length }} anos
+        {{ periodoAnos }}
       </v-chip>
     </div>
     
     <div class="stats-combo">
       <div class="stat-combo-item">
         <div class="stat-combo-icon">
-          <v-icon icon="mdi-trending-up" color="#6366f1"></v-icon>
+          <v-icon icon="mdi-trending-up" color="#b22222"></v-icon>
         </div>
         <div class="stat-combo-content">
           <div class="stat-combo-label">Maior Quantidade</div>
@@ -26,7 +26,7 @@
       
       <div class="stat-combo-item">
         <div class="stat-combo-icon">
-          <v-icon icon="mdi-percent" color="#ef4444"></v-icon>
+          <v-icon icon="mdi-percent" color="#b22222"></v-icon>
         </div>
         <div class="stat-combo-content">
           <div class="stat-combo-label">Maior Taxa</div>
@@ -39,18 +39,19 @@
       
       <div class="stat-combo-item">
         <div class="stat-combo-icon">
-          <v-icon icon="mdi-sigma" color="#8b5cf6"></v-icon>
+          <v-icon icon="mdi-sigma" color="#b22222"></v-icon>
         </div>
         <div class="stat-combo-content">
           <div class="stat-combo-label">Total Período</div>
           <div class="stat-combo-value">{{ totalFormatado }}</div>
-          <div class="stat-combo-subtitle">{{ dadosCancelamentos.length }} anos</div>
+          <div class="stat-combo-subtitle">{{ periodoAnos }}</div>
         </div>
       </div>
     </div>
 
     <div class="chart-wrapper-combo">
-      <Bar :data="chartData" :options="chartOptions" />
+      <Bar v-if="dadosCancelamentos.length > 0" :data="chartData" :options="chartOptions" />
+      <div v-else class="loading-state">Carregando dados...</div>
     </div>
   </v-card>
 </template>
@@ -69,8 +70,8 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
+import { analiseTaxaCancelamento } from '../services/api-cancelamentos';
 
-// Registrar componentes do Chart.js
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -82,20 +83,26 @@ ChartJS.register(
   Legend
 );
 
-// Dados da API
 const dadosCancelamentos = ref([]);
 
-// Estatísticas computadas
+const periodoAnos = computed(() => {
+  if (dadosCancelamentos.value.length === 0) return '';
+  const anos = dadosCancelamentos.value.map(item => Number(item.ano)).sort((a, b) => a - b);
+  const anoInicial = anos[0];
+  const anoFinal = new Date().getFullYear();
+  return `${anoInicial}-${anoFinal}`;
+});
+
 const maiorQuantidade = computed(() => {
   if (dadosCancelamentos.value.length === 0) return '0';
-  const max = Math.max(...dadosCancelamentos.value.map(item => item.qtd_cancelamentos));
+  const max = Math.max(...dadosCancelamentos.value.map(item => Number(item.qtd_cancelamentos)));
   return max.toLocaleString('pt-BR');
 });
 
 const anoMaiorQtd = computed(() => {
   if (dadosCancelamentos.value.length === 0) return '';
   const itemMax = dadosCancelamentos.value.reduce((prev, current) => 
-    (prev.qtd_cancelamentos > current.qtd_cancelamentos) ? prev : current
+    (Number(prev.qtd_cancelamentos) > Number(current.qtd_cancelamentos)) ? prev : current
   );
   return itemMax.ano;
 });
@@ -115,26 +122,25 @@ const anoMaiorTaxa = computed(() => {
 });
 
 const totalFormatado = computed(() => {
-  const total = dadosCancelamentos.value.reduce((acc, item) => acc + item.qtd_cancelamentos, 0);
+  const total = dadosCancelamentos.value.reduce((acc, item) => acc + Number(item.qtd_cancelamentos), 0);
   return total.toLocaleString('pt-BR');
 });
 
-// Configuração dos dados do gráfico
 const chartData = computed(() => ({
   labels: dadosCancelamentos.value.map(item => item.ano).reverse(),
   datasets: [
     {
       type: 'bar',
       label: 'Quantidade de Cancelamentos',
-      data: dadosCancelamentos.value.map(item => item.qtd_cancelamentos).reverse(),
+      data: dadosCancelamentos.value.map(item => Number(item.qtd_cancelamentos)).reverse(),
       backgroundColor: (context) => {
         const ctx = context.chart.ctx;
         const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.8)');
-        gradient.addColorStop(1, 'rgba(139, 92, 246, 0.8)');
+        gradient.addColorStop(0, 'rgba(178, 34, 34, 0.8)');
+        gradient.addColorStop(1, 'rgba(178, 34, 34, 0.5)');
         return gradient;
       },
-      borderColor: 'rgba(99, 102, 241, 1)',
+      borderColor: '#b22222',
       borderWidth: 2,
       borderRadius: 6,
       yAxisID: 'y',
@@ -143,13 +149,13 @@ const chartData = computed(() => ({
       type: 'line',
       label: 'Taxa de Cancelamento (%)',
       data: dadosCancelamentos.value.map(item => parseFloat(item.taxa_cancelamento)).reverse(),
-      borderColor: 'rgb(239, 68, 68)',
-      backgroundColor: 'rgba(239, 68, 68, 0.1)',
+      borderColor: '#b22222',
+      backgroundColor: 'rgba(178, 34, 34, 0.1)',
       borderWidth: 3,
       tension: 0.4,
       pointRadius: 5,
       pointHoverRadius: 7,
-      pointBackgroundColor: 'rgb(239, 68, 68)',
+      pointBackgroundColor: '#b22222',
       pointBorderColor: '#fff',
       pointBorderWidth: 2,
       yAxisID: 'y1',
@@ -157,7 +163,6 @@ const chartData = computed(() => ({
   ]
 }));
 
-// Opções do gráfico
 const chartOptions = ref({
   responsive: true,
   maintainAspectRatio: false,
@@ -234,7 +239,7 @@ const chartOptions = ref({
           size: 12,
           weight: 'bold'
         },
-        color: '#6366f1'
+        color: '#b22222'
       }
     },
     y1: {
@@ -260,7 +265,7 @@ const chartOptions = ref({
           size: 12,
           weight: 'bold'
         },
-        color: '#ef4444'
+        color: '#b22222'
       }
     },
     x: {
@@ -277,53 +282,24 @@ const chartOptions = ref({
   }
 });
 
-// Buscar dados da API
 const fetchDados = async () => {
   try {
-    // Substitua pela sua chamada de API real
-    // const response = await suaFuncaoAPI();
-    // dadosCancelamentos.value = response.data.data;
+    const response = await analiseTaxaCancelamento();
+    console.log('Resposta da API:', response.data);
     
-    // Dados de exemplo (remova quando integrar com API)
-    dadosCancelamentos.value = [
-      {
-        "ano": "2026",
-        "qtd_cancelamentos": 2046,
-        "taxa_cancelamento": "68.87"
-      },
-      {
-        "ano": "2025",
-        "qtd_cancelamentos": 21187,
-        "taxa_cancelamento": "53.27"
-      },
-      {
-        "ano": "2024",
-        "qtd_cancelamentos": 17281,
-        "taxa_cancelamento": "42.56"
-      },
-      {
-        "ano": "2023",
-        "qtd_cancelamentos": 14607,
-        "taxa_cancelamento": "53.14"
-      },
-      {
-        "ano": "2022",
-        "qtd_cancelamentos": 12981,
-        "taxa_cancelamento": "61.52"
-      },
-      {
-        "ano": "2021",
-        "qtd_cancelamentos": 12012,
-        "taxa_cancelamento": "49.52"
-      },
-      {
-        "ano": "2020",
-        "qtd_cancelamentos": 7397,
-        "taxa_cancelamento": "33.65"
-      }
-    ];
+    if (Array.isArray(response.data)) {
+      dadosCancelamentos.value = response.data;
+    } else if (response.data.data && Array.isArray(response.data.data)) {
+      dadosCancelamentos.value = response.data.data;
+    } else if (response.data.result && Array.isArray(response.data.result)) {
+      dadosCancelamentos.value = response.data.result;
+    } else {
+      console.error('Formato inesperado da API:', response.data);
+      dadosCancelamentos.value = [];
+    }
   } catch (error) {
     console.error('Erro ao buscar dados:', error);
+    dadosCancelamentos.value = [];
   }
 };
 
@@ -335,6 +311,9 @@ onBeforeMount(() => {
 <style scoped>
 .combo-chart-card {
   border-radius: 12px;
+  max-width: 1400px;
+  min-height: 590px;
+  max-height: 600px;
   overflow: hidden;
   height: 100%;
   display: flex;
@@ -342,7 +321,7 @@ onBeforeMount(() => {
 }
 
 .card-header {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #b22222 0%, #8b1a1a 100%);
   padding: 12px 16px;
   display: flex;
   justify-content: space-between;
@@ -366,7 +345,7 @@ onBeforeMount(() => {
   justify-content: space-around;
   align-items: center;
   padding: 16px;
-  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+  background: #f5f5f5;
   gap: 16px;
 }
 
@@ -426,6 +405,15 @@ onBeforeMount(() => {
   height: 320px;
   padding: 20px 16px 16px 16px;
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-state {
+  color: #666;
+  font-size: 14px;
+  text-align: center;
 }
 
 @media (max-width: 768px) {

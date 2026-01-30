@@ -29,7 +29,6 @@ import {
   Legend
 } from 'chart.js';
 
-// Registrar componentes do Chart.js
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -39,11 +38,9 @@ ChartJS.register(
   Legend
 );
 
-// Seus dados da API
 const dadosCancelamentos = ref([]);
 const motivoCancelamento = ref(22);
 
-// Configuração dos dados do gráfico
 const chartData = computed(() => ({
   labels: dadosCancelamentos.value.map(item => item.bairro),
   datasets: [
@@ -72,11 +69,10 @@ const chartData = computed(() => ({
   ]
 }));
 
-// Opções do gráfico
 const chartOptions = ref({
   responsive: true,
   maintainAspectRatio: false,
-  indexAxis: 'y', // Barras horizontais
+  indexAxis: 'y',
   plugins: {
     legend: {
       display: false
@@ -127,14 +123,8 @@ const chartOptions = ref({
   }
 });
 
-// Buscar dados da API
 const fetchDados = async () => {
   try {
-    // Substitua pela sua chamada de API real
-    // const response = await suaFuncaoAPI();
-    // dadosCancelamentos.value = response.data.data;
-    
-    // Dados de exemplo (remova quando integrar com API)
     dadosCancelamentos.value = [
       {
         "bairro": "Vila Nova Bonsucesso",

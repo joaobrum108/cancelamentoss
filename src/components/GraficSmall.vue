@@ -1,9 +1,9 @@
 <template>
-  <v-card class="comparative-chart-card elevation-2">
+  <v-card class="comparative-chart-card ">
     <div class="card-header">
       <div class="header-content">
         <v-icon icon="mdi-chart-timeline-variant" size="small" color="white"></v-icon>
-        <span class="header-title">Análise Comparativa - Cancelamentos</span>
+        <span class="header-title">Analise Mensal de Cancelamentos</span>
       </div>
       <v-chip size="x-small" color="white" variant="outlined">
         {{ dadosCancelamentos.length }} meses
@@ -110,7 +110,6 @@ const dadosCancelamentos = ref([]);
 const carregando = ref(true);
 const erro = ref(false);
 
-// Computed para análise comparativa
 const ultimosPeriodo = computed(() => {
   if (dadosCancelamentos.value.length < 3) return { valor: '0', meses: [] };
   
@@ -245,12 +244,10 @@ const formatarMes = (mes) => {
 const chartData = computed(() => {
   const dadosReverso = [...dadosCancelamentos.value].reverse();
   
-  // Criar datasets comparativos
   const dataset1 = [];
   const dataset2 = [];
   const labels = [];
   
-  // Dividir em dois períodos para comparação
   const metade = Math.floor(dadosReverso.length / 2);
   
   dadosReverso.forEach((item, index) => {
@@ -333,7 +330,6 @@ const chartOptions = ref({
           
           if (value === null) return null;
           
-          // Calcular variação se possível
           let variation = '';
           const dataIndex = context.dataIndex;
           const allData = dadosCancelamentos.value.map(d => d.qtd_cancelamentos).reverse();
@@ -408,8 +404,6 @@ const fetchDados = async () => {
 
     dadosCancelamentos.value = response.data.data || response.data || [];
     
-    console.log('Dados de cancelamentos processados:', dadosCancelamentos.value);
-    
   } catch (error) {
     console.error('Erro ao buscar dados:', error);
     erro.value = true;
@@ -437,7 +431,7 @@ onBeforeMount(() => {
 }
 
 .card-header {
-  background: linear-gradient(135deg, #db0e35 0%, #c40a2d 100%);
+  background: linear-gradient(135deg, #b22222 0%, #c40a2d 100%);
   padding: 16px 20px;
   display: flex;
   justify-content: space-between;
@@ -514,7 +508,7 @@ onBeforeMount(() => {
 }
 
 .comparison-up {
-  color: #ef4444;
+  color: #b22222;
 }
 
 .comparison-down {
@@ -538,7 +532,7 @@ onBeforeMount(() => {
 
 .comparison-badge.comparison-up {
   background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  color: #b22222;
 }
 
 .comparison-badge.comparison-down {
@@ -582,7 +576,7 @@ onBeforeMount(() => {
 .insight-card.insight-warning {
   background: rgba(239, 68, 68, 0.08);
   border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #dc2626;
+  color: #b22222;
 }
 
 .insight-card.insight-success {
