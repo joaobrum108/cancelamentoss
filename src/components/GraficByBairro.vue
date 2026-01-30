@@ -47,7 +47,6 @@
             :items="[
               { title: 'Maior → Menor', value: 'desc' },
               { title: 'Menor → Maior', value: 'asc' },
-              { title: 'A-Z', value: 'alpha' }
             ]"
             density="compact"
             label="Ordenar por"

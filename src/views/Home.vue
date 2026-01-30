@@ -26,9 +26,9 @@
                     <GraficSmall />
                   </v-window-item>
                   <v-window-item value="analytics">
-                    <GraficBarras />
-                    <br>
                     <GraficByBairro />
+                    <br>
+                    <GraficBarras />
                   </v-window-item>
                   <v-window-item value="reports">
                     <List />
